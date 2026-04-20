@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Just Dashes Print Work Card</title>
-  <script src="https://p.trellocdn.com/power-up.min.js"></script>
-</head>
-<body>
-  <script>
-    window.TrelloPowerUp.initialize({
-      'card-buttons': function (t) {
-        return [{
-          text: 'Print Work Card',
-          callback: function (t) {
-            return t.popup({
-              title: 'Print Work Card',
-              url: './print.html',
-              height: 200
-            });
-          }
-        }];
-      }
-    });
-  </script>
-</body>
-</html>
+<script>
+  window.TrelloPowerUp.initialize({
+    'card-buttons': function (t) {
+      return [{
+        text: 'Print Work Card',
+        callback: function (t) {
+          return t.popup({
+            title: 'Print Work Card',
+            url: t.signUrl('./print.html'),
+            height: 220
+          });
+        }
+      }];
+    }
+  });
+</script>
