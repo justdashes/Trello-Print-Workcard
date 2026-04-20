@@ -5,20 +5,264 @@
   <title>Print Work Card</title>
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
+    :root {
+      --border: #222;
+      --light-border: #999;
+      --text: #111;
+      --muted: #555;
+      --bg: #fff;
     }
-    button {
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background: #f5f5f5;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .toolbar button {
       padding: 10px 16px;
       font-size: 16px;
+      cursor: pointer;
+    }
+
+    .toolbar .note {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto 16px auto;
+      background: var(--bg);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      padding: 0.4in;
+      position: relative;
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      page-break-after: auto;
+    }
+
+    .cover-image {
+      width: 100%;
+      height: 3.0in;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      display: block;
+      margin-bottom: 18px;
+      background: #ddd;
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      row-gap: 8px;
+      column-gap: 10px;
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .header-label {
+      font-weight: bold;
+    }
+
+    .materials-line,
+    .qc-line {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .checkbox {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--border);
+      vertical-align: -3px;
+      margin: 0 6px 0 10px;
+    }
+
+    .checkbox.first {
+      margin-left: 0;
+    }
+
+    .labels-box {
+      border: 1px solid var(--border);
+      padding: 12px;
+      min-height: 58px;
+    }
+
+    .label-pill {
+      display: inline-block;
+      border: 2px solid var(--border);
+      padding: 7px 12px;
+      margin: 0 10px 10px 0;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 0.02em;
+    }
+
+    .description-box {
+      border: 1px solid var(--border);
+      padding: 12px;
+      min-height: 3.7in;
+      white-space: pre-line;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .full-image-page {
+      width: 11in;
+      min-height: 8.5in;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .full-image-page img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media print {
+      @page portraitPage {
+        size: letter portrait;
+        margin: 0;
+      }
+
+      @page landscapePage {
+        size: letter landscape;
+        margin: 0;
+      }
+
+      body {
+        background: #fff;
+        padding: 0;
+        margin: 0;
+      }
+
+      .toolbar {
+        display: none !important;
+      }
+
+      .page {
+        box-shadow: none;
+        margin: 0;
+      }
+
+      .page.page-1 {
+        page: portraitPage;
+        width: 8.5in;
+        min-height: 11in;
+        padding: 0.4in;
+      }
+
+      .page.page-2 {
+        page: landscapePage;
+        width: 11in;
+        min-height: 8.5in;
+        padding: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Preview Work Card</h2>
-  <p>The popup is working.</p>
-  <button id="printBtn">Print</button>
+  <div class="toolbar">
+    <button id="printBtn">Print</button>
+    <span class="note">Mockup only for now — real Trello data comes next.</span>
+  </div>
+
+  <div class="page page-1">
+    <img
+      class="cover-image"
+      src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1400&q=80"
+      alt="Work card cover placeholder"
+    />
+
+    <div class="header-grid section">
+      <div class="header-label">JOB #:</div>
+      <div>24474</div>
+
+      <div class="header-label">CUSTOMER:</div>
+      <div>Chris Brown</div>
+
+      <div class="header-label">VEHICLE:</div>
+      <div>1970 Dodge Challenger</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Materials</div>
+      <div class="materials-line">
+        VINYL:
+        <span class="checkbox first"></span>Coachman
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        COLOR:
+        <span class="checkbox"></span>White
+        <span class="checkbox"></span>Black
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">QC Approval</div>
+      <div class="qc-line">
+        QC: Initials ________ &nbsp;&nbsp;&nbsp; Date ________
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Labels</div>
+      <div class="labels-box">
+        <span class="label-pill">WILL CALL</span>
+        <span class="label-pill">PRE-PRODUCTION</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Description</div>
+      <div class="description-box">SHELF: Upstairs
+*Kick Panels Stay Black
+SHIPPING: Will Call</div>
+    </div>
+  </div>
+
+  <div class="page page-2 full-image-page">
+    <img
+      src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1800&q=80"
+      alt="Full page placeholder"
+    />
+  </div>
 
   <script>
     var t = TrelloPowerUp.iframe();
