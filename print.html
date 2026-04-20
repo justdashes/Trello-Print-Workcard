@@ -16,11 +16,21 @@
   </style>
 </head>
 <body>
-
   <h2>Preview Work Card</h2>
   <p>This will become your work card layout.</p>
 
-  <button onclick="window.print()">Print</button>
+  <button id="printBtn">Print</button>
 
+  <script>
+    var t = TrelloPowerUp.iframe();
+
+    document.getElementById('printBtn').addEventListener('click', function () {
+      window.print();
+    });
+
+    t.render(function () {
+      return t.sizeTo('body');
+    });
+  </script>
 </body>
 </html>
