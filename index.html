@@ -1,16 +1,33 @@
-<script>
-  window.TrelloPowerUp.initialize({
-    'card-buttons': function (t) {
-      return [{
-        text: 'Print Work Card',
-        callback: function (t) {
-          return t.popup({
-            title: 'Print Work Card',
-            url: t.signUrl('./print.html'),
-            height: 220
-          });
-        }
-      }];
-    }
-  });
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Just Dashes Print Work Card</title>
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+</head>
+<body>
+  <script>
+    var GRAY_ICON = 'https://cdn.glitch.global/3f3f1b78-3d14-4d95-bff9-3f0c2a9b2d76/print-gray.svg?v=1';
+    var WHITE_ICON = 'https://cdn.glitch.global/3f3f1b78-3d14-4d95-bff9-3f0c2a9b2d76/print-white.svg?v=1';
+
+    window.TrelloPowerUp.initialize({
+      'card-buttons': function (t) {
+        return [{
+          icon: {
+            dark: GRAY_ICON,
+            light: WHITE_ICON
+          },
+          text: 'Print Work Card',
+          callback: function (t) {
+            return t.popup({
+              title: 'Print Work Card',
+              url: './print.html',
+              height: 220
+            });
+          }
+        }];
+      }
+    });
+  </script>
+</body>
+</html>
