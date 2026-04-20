@@ -7,7 +7,6 @@
   <style>
     :root {
       --border: #222;
-      --light-border: #999;
       --text: #111;
       --muted: #555;
       --bg: #fff;
@@ -19,7 +18,7 @@
 
     body {
       margin: 0;
-      padding: 16px;
+      padding: 12px;
       font-family: Arial, sans-serif;
       color: var(--text);
       background: #f5f5f5;
@@ -29,7 +28,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .toolbar button {
@@ -39,19 +38,20 @@
     }
 
     .toolbar .note {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--muted);
     }
 
     .page {
       width: 8.5in;
       min-height: 11in;
-      margin: 0 auto 16px auto;
+      margin: 0 auto 12px auto;
       background: var(--bg);
       box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      padding: 0.4in;
+      padding: 0.3in;
       position: relative;
       page-break-after: always;
+      overflow: hidden;
     }
 
     .page:last-child {
@@ -60,33 +60,33 @@
 
     .cover-image {
       width: 100%;
-      height: 3.0in;
+      height: 2.55in;
       border: 1px solid var(--border);
       object-fit: cover;
       display: block;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
       background: #ddd;
     }
 
     .section {
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .section-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .header-grid {
       display: grid;
-      grid-template-columns: 110px 1fr;
-      row-gap: 8px;
-      column-gap: 10px;
-      font-size: 18px;
-      margin-bottom: 18px;
+      grid-template-columns: 96px 1fr;
+      row-gap: 5px;
+      column-gap: 8px;
+      font-size: 16px;
+      margin-bottom: 12px;
     }
 
     .header-label {
@@ -96,18 +96,18 @@
     .materials-line,
     .qc-line {
       border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-size: 18px;
-      line-height: 1.5;
+      padding: 8px 10px;
+      font-size: 16px;
+      line-height: 1.35;
     }
 
     .checkbox {
       display: inline-block;
-      width: 18px;
-      height: 18px;
+      width: 15px;
+      height: 15px;
       border: 1.5px solid var(--border);
-      vertical-align: -3px;
-      margin: 0 6px 0 10px;
+      vertical-align: -2px;
+      margin: 0 5px 0 8px;
     }
 
     .checkbox.first {
@@ -116,27 +116,29 @@
 
     .labels-box {
       border: 1px solid var(--border);
-      padding: 12px;
-      min-height: 58px;
+      padding: 10px;
+      min-height: 46px;
     }
 
     .label-pill {
       display: inline-block;
       border: 2px solid var(--border);
-      padding: 7px 12px;
-      margin: 0 10px 10px 0;
-      font-size: 16px;
+      padding: 5px 10px;
+      margin: 0 8px 8px 0;
+      font-size: 14px;
       font-weight: bold;
       letter-spacing: 0.02em;
     }
 
     .description-box {
       border: 1px solid var(--border);
-      padding: 12px;
-      min-height: 3.7in;
+      padding: 10px;
+      min-height: 2.55in;
+      max-height: 2.55in;
+      overflow: hidden;
       white-space: pre-line;
-      font-size: 17px;
-      line-height: 1.45;
+      font-size: 15px;
+      line-height: 1.3;
     }
 
     .full-image-page {
@@ -167,7 +169,9 @@
         margin: 0;
       }
 
-      body {
+      html, body {
+        width: 100%;
+        height: auto;
         background: #fff;
         padding: 0;
         margin: 0;
@@ -186,13 +190,16 @@
         page: portraitPage;
         width: 8.5in;
         min-height: 11in;
-        padding: 0.4in;
+        max-height: 11in;
+        padding: 0.3in;
+        overflow: hidden;
       }
 
       .page.page-2 {
         page: landscapePage;
         width: 11in;
         min-height: 8.5in;
+        max-height: 8.5in;
         padding: 0;
       }
     }
@@ -227,7 +234,7 @@
       <div class="materials-line">
         VINYL:
         <span class="checkbox first"></span>Coachman
-        &nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;
         COLOR:
         <span class="checkbox"></span>White
         <span class="checkbox"></span>Black
