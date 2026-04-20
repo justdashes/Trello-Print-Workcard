@@ -2,6 +2,10 @@
   window.TrelloPowerUp.initialize({
     'card-buttons': function (t) {
       return [{
+        icon: {
+          dark: 'https://trello.com/favicon.ico',
+          light: 'https://trello.com/favicon.ico'
+        },
         text: 'Print Work Card',
         callback: function (t) {
           return t.popup({
