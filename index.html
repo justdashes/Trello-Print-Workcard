@@ -12,10 +12,12 @@
         return [{
           text: 'Print Work Card',
           callback: function (t) {
-            return t.popup({
+            return t.modal({
               title: 'Print Work Card',
               url: './print.html',
-              height: 700
+              fullscreen: false,
+              height: 900,
+              width: 1100
             });
           }
         }];
