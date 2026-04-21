@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Print Work Card</title>
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --border: #222;
@@ -427,8 +428,52 @@ SHIPPING: Will Call</div>
     });
   }
 
+  function escapeHtml(value) {
+    return (value || '').replace(/[&<>"']/g, function (character) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[character];
+    });
+  }
+
+  function sanitizeDescriptionHtml(html) {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+
+    template.content.querySelectorAll('script, style, iframe, object, embed, link, meta').forEach(function (element) {
+      element.remove();
+    });
+
+    template.content.querySelectorAll('*').forEach(function (element) {
+      Array.prototype.slice.call(element.attributes).forEach(function (attribute) {
+        var name = attribute.name.toLowerCase();
+        var value = attribute.value.trim().toLowerCase();
+
+        if (name.indexOf('on') === 0 || ((name === 'href' || name === 'src') && value.indexOf('javascript:') === 0)) {
+          element.removeAttribute(attribute.name);
+        }
+      });
+    });
+
+    return template.innerHTML;
+  }
+
+  function renderMarkdown(markdownText) {
+    if (window.marked && window.marked.parse) {
+      return sanitizeDescriptionHtml(window.marked.parse(markdownText || '', {
+        breaks: true
+      }));
+    }
+
+    return escapeHtml(markdownText || '').replace(/\n/g, '<br>');
+  }
+
   function fitsText(element, text) {
-    element.textContent = text;
+    element.innerHTML = renderMarkdown(text);
     return element.scrollHeight <= element.clientHeight;
   }
 
@@ -475,7 +520,7 @@ SHIPPING: Will Call</div>
     title.className = 'section-title';
     title.textContent = 'Description continued:';
     description.className = 'description-overflow-box';
-    description.textContent = text;
+    description.innerHTML = renderMarkdown(text);
 
     section.appendChild(title);
     section.appendChild(description);
@@ -497,7 +542,7 @@ SHIPPING: Will Call</div>
     }
 
     var pageOneSplit = findFittingText(descriptionBox, remainingText);
-    descriptionBox.textContent = pageOneSplit.visible || remainingText;
+    descriptionBox.innerHTML = renderMarkdown(pageOneSplit.visible || remainingText);
     remainingText = pageOneSplit.overflow;
 
     while (remainingText && finalImagePage) {
@@ -506,7 +551,7 @@ SHIPPING: Will Call</div>
 
       var overflowBox = overflowPage.querySelector('.description-overflow-box');
       var overflowSplit = findFittingText(overflowBox, remainingText);
-      overflowBox.textContent = overflowSplit.visible || remainingText;
+      overflowBox.innerHTML = renderMarkdown(overflowSplit.visible || remainingText);
       remainingText = overflowSplit.overflow;
 
       if (!overflowSplit.visible) {
