@@ -61,9 +61,8 @@
     .cover-image {
       width: 100%;
       height: 2.55in;
-      border: 1px solid var(--border);
-      object-fit: contain;
-      object-position: center center;
+      border: none;
+      object-fit: cover;
       display: block;
       margin-bottom: 12px;
       background: #ddd;
@@ -214,7 +213,6 @@
 
   <div class="page page-1">
     <img
-      id="coverImage"
       class="cover-image"
       src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1400&q=80"
       alt="Work card cover placeholder"
@@ -268,7 +266,6 @@ SHIPPING: Will Call</div>
 
   <div class="page page-2 full-image-page">
     <img
-      id="fullPageImage"
       src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1800&q=80"
       alt="Full page placeholder"
     />
@@ -383,40 +380,11 @@ SHIPPING: Will Call</div>
     }
   }
 
-  function getCoverImageUrl(cover) {
-    if (cover && cover.scaled && cover.scaled.length) {
-      var scaled = cover.scaled.slice().sort(function (a, b) {
-        return (b.width || 0) - (a.width || 0);
-      });
-      return scaled[0].url;
-    }
-
-    return cover && cover.url;
-  }
-
-  function renderCoverImages(cover) {
-    var coverUrl = getCoverImageUrl(cover);
-    var coverImage = document.getElementById('coverImage');
-    var fullPageImage = document.getElementById('fullPageImage');
-
-    if (!coverUrl) {
-      return;
-    }
-
-    if (coverImage) {
-      coverImage.src = coverUrl;
-    }
-
-    if (fullPageImage) {
-      fullPageImage.src = coverUrl;
-    }
-  }
-
   t.render(function () {
     var debug = document.getElementById('debug');
     debug.textContent = 'Loading Trello card data...';
 
-    return t.card('name', 'desc', 'labels', 'cover')
+    return t.card('name', 'desc', 'labels')
       .then(function (card) {
         var parsedTitle = parseCardTitle(card.name);
 
@@ -425,7 +393,6 @@ SHIPPING: Will Call</div>
         setText('vehicleInfo', parsedTitle.vehicle || 'From card title');
         setText('descriptionBox', card.desc || 'No description');
         renderMaterials(parsedTitle);
-        renderCoverImages(card.cover);
         renderLabels(card.labels || []);
         debug.textContent = 'Popup loaded successfully.';
         return t.sizeTo('body');
