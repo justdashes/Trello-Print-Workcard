@@ -227,9 +227,6 @@
 
       <div class="header-label">VEHICLE:</div>
       <div id="vehicleInfo">From card title</div>
-
-      <div class="header-label">TITLE:</div>
-      <div id="cardTitle">Loading...</div>
     </div>
 
     <div class="section">
@@ -391,7 +388,6 @@ SHIPPING: Will Call</div>
       .then(function (card) {
         var parsedTitle = parseCardTitle(card.name);
 
-        setText('cardTitle', card.name || 'Untitled card');
         setText('jobNumber', parsedTitle.jobNumber || 'From card title');
         setText('customerName', parsedTitle.customerName || 'From card title');
         setText('vehicleInfo', parsedTitle.vehicle || 'From card title');
