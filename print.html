@@ -307,7 +307,7 @@
           </div>
         </div>
 
-        <div class="section">
+        <div class="section" id="labelsSection">
           <div class="section-title">Labels:</div>
           <div class="labels-box" id="labelsBox">
             <span class="label-pill">WILL CALL</span>
@@ -347,15 +347,19 @@ SHIPPING: Will Call</div>
   }
 
   function renderLabels(labels) {
+    var labelsSection = document.getElementById('labelsSection');
     var labelsBox = document.getElementById('labelsBox');
     labelsBox.innerHTML = '';
 
     if (!labels || !labels.length) {
-      var emptyLabel = document.createElement('span');
-      emptyLabel.className = 'label-pill';
-      emptyLabel.textContent = 'No labels';
-      labelsBox.appendChild(emptyLabel);
+      if (labelsSection) {
+        labelsSection.style.display = 'none';
+      }
       return;
+    }
+
+    if (labelsSection) {
+      labelsSection.style.display = '';
     }
 
     labels.forEach(function (label) {
