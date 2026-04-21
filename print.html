@@ -42,6 +42,20 @@
       color: var(--muted);
     }
 
+    .preview-viewport {
+      width: 100%;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-bottom: 24px;
+    }
+
+    .preview-scale {
+      transform-origin: top center;
+      transition: transform 120ms ease;
+    }
+
     .page {
       width: 8.5in;
       min-height: 11in;
@@ -193,6 +207,13 @@
         display: none !important;
       }
 
+      .preview-viewport,
+      .preview-scale {
+        display: contents;
+        transform: none !important;
+        transition: none;
+      }
+
       .page {
         box-shadow: none;
         margin: 0;
@@ -223,64 +244,68 @@
     <span class="note">Using Trello card title, description, and labels.</span>
   </div>
 
-  <div class="page page-1">
-    <img
-      class="cover-image"
-      src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1400&q=80"
-      alt="Work card cover placeholder"
-    />
+  <div id="previewViewport" class="preview-viewport">
+    <div id="previewScale" class="preview-scale">
+      <div class="page page-1">
+        <img
+          class="cover-image"
+          src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1400&q=80"
+          alt="Work card cover placeholder"
+        />
 
-    <div class="header-grid section">
-      <div class="header-label">JOB #:</div>
-      <div id="jobNumber">From card title</div>
+        <div class="header-grid section">
+          <div class="header-label">JOB #:</div>
+          <div id="jobNumber">From card title</div>
 
-      <div class="header-label">CUSTOMER:</div>
-      <div id="customerName">From card title</div>
+          <div class="header-label">CUSTOMER:</div>
+          <div id="customerName">From card title</div>
 
-      <div class="header-label">VEHICLE:</div>
-      <div id="vehicleInfo">From card title</div>
-    </div>
+          <div class="header-label">VEHICLE:</div>
+          <div id="vehicleInfo">From card title</div>
+        </div>
 
-    <div class="section">
-      <div class="section-title">Materials:</div>
-      <div class="materials-line">
-        VINYL:
-        <span id="vinylValue"><span class="checkbox first"></span>Coachman</span>
-        &nbsp;&nbsp;&nbsp;
-        COLOR:
-        <span id="colorOptions"><span class="checkbox"></span>White
-        <span class="checkbox"></span>Black</span>
-      </div>
-    </div>
+        <div class="section">
+          <div class="section-title">Materials:</div>
+          <div class="materials-line">
+            VINYL:
+            <span id="vinylValue"><span class="checkbox first"></span>Coachman</span>
+            &nbsp;&nbsp;&nbsp;
+            COLOR:
+            <span id="colorOptions"><span class="checkbox"></span>White
+            <span class="checkbox"></span>Black</span>
+          </div>
+        </div>
 
-    <div class="section">
-      <div class="section-title">QC Approval:</div>
-      <div class="qc-line">
-        QC: Initials ________ &nbsp;&nbsp;&nbsp; Date ________
-      </div>
-    </div>
+        <div class="section">
+          <div class="section-title">QC Approval:</div>
+          <div class="qc-line">
+            QC: Initials ________ &nbsp;&nbsp;&nbsp; Date ________
+          </div>
+        </div>
 
-    <div class="section">
-      <div class="section-title">Labels:</div>
-      <div class="labels-box" id="labelsBox">
-        <span class="label-pill">WILL CALL</span>
-        <span class="label-pill">PRE-PRODUCTION</span>
-      </div>
-    </div>
+        <div class="section">
+          <div class="section-title">Labels:</div>
+          <div class="labels-box" id="labelsBox">
+            <span class="label-pill">WILL CALL</span>
+            <span class="label-pill">PRE-PRODUCTION</span>
+          </div>
+        </div>
 
-    <div class="section">
-      <div class="section-title">Description:</div>
-      <div class="description-box" id="descriptionBox">SHELF: Upstairs
+        <div class="section">
+          <div class="section-title">Description:</div>
+          <div class="description-box" id="descriptionBox">SHELF: Upstairs
 *Kick Panels Stay Black
 SHIPPING: Will Call</div>
-    </div>
-  </div>
+        </div>
+      </div>
 
-  <div class="page page-2 full-image-page">
-    <img
-      src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1800&q=80"
-      alt="Full page placeholder"
-    />
+      <div class="page page-2 full-image-page">
+        <img
+          src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1800&q=80"
+          alt="Full page placeholder"
+        />
+      </div>
+    </div>
   </div>
   <script>
   var t = TrelloPowerUp.iframe();
@@ -456,6 +481,7 @@ SHIPPING: Will Call</div>
   function renderDescription(descriptionText) {
     var descriptionBox = document.getElementById('descriptionBox');
     var finalImagePage = document.querySelector('.full-image-page');
+    var previewScale = document.getElementById('previewScale');
     var remainingText = descriptionText || 'No description';
 
     clearDescriptionOverflowPages();
@@ -470,7 +496,7 @@ SHIPPING: Will Call</div>
 
     while (remainingText && finalImagePage) {
       var overflowPage = createDescriptionOverflowPage(remainingText);
-      document.body.insertBefore(overflowPage, finalImagePage);
+      (previewScale || document.body).insertBefore(overflowPage, finalImagePage);
 
       var overflowBox = overflowPage.querySelector('.description-overflow-box');
       var overflowSplit = findFittingText(overflowBox, remainingText);
@@ -483,6 +509,40 @@ SHIPPING: Will Call</div>
     }
   }
 
+  function scalePreview() {
+    var viewport = document.getElementById('previewViewport');
+    var previewScale = document.getElementById('previewScale');
+
+    if (!viewport || !previewScale) {
+      return;
+    }
+
+    if (window.matchMedia('print').matches) {
+      previewScale.style.transform = '';
+      previewScale.style.width = '';
+      return;
+    }
+
+    var pages = previewScale.querySelectorAll('.page');
+    var widestPage = 0;
+
+    pages.forEach(function (page) {
+      widestPage = Math.max(widestPage, page.offsetWidth);
+    });
+
+    if (!widestPage) {
+      return;
+    }
+
+    var availableWidth = viewport.clientWidth - 24;
+    var scale = availableWidth / widestPage;
+    scale = Math.min(1.25, Math.max(0.55, scale));
+    previewScale.style.width = widestPage + 'px';
+    previewScale.style.transform = 'scale(' + scale + ')';
+  }
+
+  window.addEventListener('resize', scalePreview);
+
   t.render(function () {
     return t.card('name', 'desc', 'labels')
       .then(function (card) {
@@ -494,6 +554,7 @@ SHIPPING: Will Call</div>
         renderDescription(card.desc || 'No description');
         renderMaterials(parsedTitle);
         renderLabels(card.labels || []);
+        scalePreview();
         return t.sizeTo('body');
       })
       .catch(function (error) {
