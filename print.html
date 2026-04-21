@@ -271,16 +271,36 @@ SHIPPING: Will Call</div>
     />
   </div>
 
-  <script>
-    var t = TrelloPowerUp.iframe();
+<script>
+  var t = TrelloPowerUp.iframe();
 
-    document.getElementById('printBtn').addEventListener('click', function () {
-      window.print();
-    });
+  document.getElementById('printBtn').addEventListener('click', function () {
+    window.print();
+  });
 
-    t.render(function () {
+  t.render(function () {
+    return t.card('name', 'desc', 'labels').then(function (card) {
+      var debug = document.createElement('pre');
+      debug.style.whiteSpace = 'pre-wrap';
+      debug.style.fontSize = '12px';
+      debug.style.marginTop = '20px';
+      debug.style.borderTop = '1px solid #ccc';
+      debug.style.paddingTop = '12px';
+      debug.textContent = JSON.stringify(card, null, 2);
+      document.body.appendChild(debug);
+
+      return t.sizeTo('body');
+    }).catch(function (err) {
+      var debug = document.createElement('pre');
+      debug.style.whiteSpace = 'pre-wrap';
+      debug.style.fontSize = '12px';
+      debug.style.marginTop = '20px';
+      debug.style.borderTop = '1px solid #ccc';
+      debug.style.paddingTop = '12px';
+      debug.textContent = 'ERROR:\\n' + (err && err.message ? err.message : JSON.stringify(err, null, 2));
+      document.body.appendChild(debug);
+
       return t.sizeTo('body');
     });
-  </script>
-</body>
-</html>
+  });
+</script>
