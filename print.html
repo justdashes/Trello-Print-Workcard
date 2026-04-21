@@ -270,8 +270,9 @@ SHIPPING: Will Call</div>
       alt="Full page placeholder"
     />
   </div>
-
-<script>
+  
+<div id="debug" style="margin-top: 20px; font-size: 12px; white-space: pre-wrap; border-top: 1px solid #ccc; padding-top: 12px;"></div>
+  <script>
   var t = TrelloPowerUp.iframe();
 
   document.getElementById('printBtn').addEventListener('click', function () {
@@ -279,6 +280,8 @@ SHIPPING: Will Call</div>
   });
 
   t.render(function () {
+    var debug = document.getElementById('debug');
+    debug.textContent = 'Popup loaded successfully.';
     return t.sizeTo('body');
   });
 </script>
