@@ -208,7 +208,7 @@
 <body>
   <div class="toolbar">
     <button id="printBtn">Print</button>
-    <span class="note">Mockup only for now — real Trello data comes next.</span>
+    <span class="note">Using Trello card title, description, and labels.</span>
   </div>
 
   <div class="page page-1">
@@ -220,24 +220,27 @@
 
     <div class="header-grid section">
       <div class="header-label">JOB #:</div>
-      <div>24474</div>
+      <div id="jobNumber">From card title</div>
 
       <div class="header-label">CUSTOMER:</div>
-      <div>Chris Brown</div>
+      <div id="customerName">From card title</div>
 
       <div class="header-label">VEHICLE:</div>
-      <div>1970 Dodge Challenger</div>
+      <div id="vehicleInfo">From card title</div>
+
+      <div class="header-label">TITLE:</div>
+      <div id="cardTitle">Loading...</div>
     </div>
 
     <div class="section">
       <div class="section-title">Materials</div>
       <div class="materials-line">
         VINYL:
-        <span class="checkbox first"></span>Coachman
+        <span id="vinylValue"><span class="checkbox first"></span>Coachman</span>
         &nbsp;&nbsp;&nbsp;
         COLOR:
-        <span class="checkbox"></span>White
-        <span class="checkbox"></span>Black
+        <span id="colorOptions"><span class="checkbox"></span>White
+        <span class="checkbox"></span>Black</span>
       </div>
     </div>
 
@@ -250,7 +253,7 @@
 
     <div class="section">
       <div class="section-title">Labels</div>
-      <div class="labels-box">
+      <div class="labels-box" id="labelsBox">
         <span class="label-pill">WILL CALL</span>
         <span class="label-pill">PRE-PRODUCTION</span>
       </div>
@@ -258,7 +261,7 @@
 
     <div class="section">
       <div class="section-title">Description:</div>
-      <div class="description-box">SHELF: Upstairs
+      <div class="description-box" id="descriptionBox">SHELF: Upstairs
 *Kick Panels Stay Black
 SHIPPING: Will Call</div>
     </div>
@@ -279,9 +282,128 @@ SHIPPING: Will Call</div>
     window.print();
   });
 
+  function setText(id, value) {
+    var element = document.getElementById(id);
+    if (element) {
+      element.textContent = value;
+    }
+  }
+
+  function renderLabels(labels) {
+    var labelsBox = document.getElementById('labelsBox');
+    labelsBox.innerHTML = '';
+
+    if (!labels || !labels.length) {
+      var emptyLabel = document.createElement('span');
+      emptyLabel.className = 'label-pill';
+      emptyLabel.textContent = 'No labels';
+      labelsBox.appendChild(emptyLabel);
+      return;
+    }
+
+    labels.forEach(function (label) {
+      var pill = document.createElement('span');
+      pill.className = 'label-pill';
+      pill.textContent = label.name || label.color || 'Unnamed label';
+      labelsBox.appendChild(pill);
+    });
+  }
+
+  function cleanTitleValue(value) {
+    return (value || '').replace(/_/g, '').trim();
+  }
+
+  function parseCardTitle(title) {
+    var parsed = {
+      jobNumber: '',
+      customerName: '',
+      vehicle: '',
+      vinyl: '',
+      colors: []
+    };
+    var match = (title || '').match(/^\s*([^:]+):\s*([^(]+?)(?:\s*\((.*)\))?\s*$/);
+
+    if (!match) {
+      return parsed;
+    }
+
+    parsed.jobNumber = cleanTitleValue(match[1]);
+    parsed.customerName = cleanTitleValue(match[2]);
+
+    if (!match[3]) {
+      return parsed;
+    }
+
+    match[3].split(';').forEach(function (part, index) {
+      var cleanedPart = cleanTitleValue(part);
+      var fieldMatch = cleanedPart.match(/^([^:]+):\s*(.*)$/);
+
+      if (!fieldMatch) {
+        if (index === 0) {
+          parsed.vehicle = cleanedPart;
+        }
+        return;
+      }
+
+      var fieldName = cleanTitleValue(fieldMatch[1]).toLowerCase();
+      var fieldValue = cleanTitleValue(fieldMatch[2]);
+
+      if (fieldName === 'vinyl') {
+        parsed.vinyl = fieldValue;
+      }
+
+      if (fieldName === 'color') {
+        parsed.colors = fieldValue.split('/').map(cleanTitleValue).filter(Boolean);
+      }
+    });
+
+    return parsed;
+  }
+
+  function renderMaterials(parsed) {
+    var vinylValue = document.getElementById('vinylValue');
+    var colorOptions = document.getElementById('colorOptions');
+
+    if (vinylValue && parsed.vinyl) {
+      var vinylCheckbox = document.createElement('span');
+      vinylCheckbox.className = 'checkbox first';
+      vinylValue.innerHTML = '';
+      vinylValue.appendChild(vinylCheckbox);
+      vinylValue.appendChild(document.createTextNode(parsed.vinyl));
+    }
+
+    if (colorOptions && parsed.colors.length) {
+      colorOptions.innerHTML = '';
+      parsed.colors.forEach(function (color) {
+        var checkbox = document.createElement('span');
+        checkbox.className = 'checkbox';
+        colorOptions.appendChild(checkbox);
+        colorOptions.appendChild(document.createTextNode(color));
+      });
+    }
+  }
+
   t.render(function () {
     var debug = document.getElementById('debug');
-    debug.textContent = 'Popup loaded successfully.';
-    return t.sizeTo('body');
+    debug.textContent = 'Loading Trello card data...';
+
+    return t.card('name', 'desc', 'labels')
+      .then(function (card) {
+        var parsedTitle = parseCardTitle(card.name);
+
+        setText('cardTitle', card.name || 'Untitled card');
+        setText('jobNumber', parsedTitle.jobNumber || 'From card title');
+        setText('customerName', parsedTitle.customerName || 'From card title');
+        setText('vehicleInfo', parsedTitle.vehicle || 'From card title');
+        setText('descriptionBox', card.desc || 'No description');
+        renderMaterials(parsedTitle);
+        renderLabels(card.labels || []);
+        debug.textContent = 'Popup loaded successfully.';
+        return t.sizeTo('body');
+      })
+      .catch(function (error) {
+        debug.textContent = 'Popup loaded, but Trello card data could not be loaded: ' + error.message;
+        return t.sizeTo('body');
+      });
   });
 </script>
