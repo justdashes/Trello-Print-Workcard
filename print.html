@@ -310,7 +310,7 @@ SHIPPING: Will Call</div>
   }
 
   function cleanTitleValue(value) {
-    return (value || '').replace(/_/g, '').trim();
+    return (value || '').replace(/\[[^\]]*\]/g, '').replace(/[\[\]_]/g, '').trim();
   }
 
   function parseCardTitle(title) {
