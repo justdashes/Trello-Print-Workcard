@@ -296,6 +296,8 @@
         <div class="section" id="materialsSection">
           <div class="section-title">Materials:</div>
           <div class="materials-line">
+            <span id="rechromingGroup">RE-CHROMING</span>
+            <span id="rechromingSpacer">&nbsp;&nbsp;&nbsp;</span>
             <span id="vinylGroup">VINYL:
             <span id="vinylValue"></span></span>
             <span id="materialsSpacer">&nbsp;&nbsp;&nbsp;</span>
@@ -417,7 +419,8 @@
       customerName: '',
       vehicle: '',
       vinyl: '',
-      colors: []
+      colors: [],
+      rechroming: false
     };
     var match = (title || '').match(/^\s*([^:]+):\s*([^(]+?)(?:\s*\((.*)\))?\s*$/);
 
@@ -435,6 +438,10 @@
     match[3].split(';').forEach(function (part, index) {
       var cleanedPart = cleanTitleValue(part);
       var fieldMatch = cleanedPart.match(/^([^:]+):\s*(.*)$/);
+
+      if (/\bre-?chrom(?:e|ing)\b/i.test(cleanedPart)) {
+        parsed.rechroming = true;
+      }
 
       if (!fieldMatch) {
         if (index === 0) {
@@ -460,11 +467,14 @@
 
   function renderMaterials(parsed) {
     var materialsSection = document.getElementById('materialsSection');
+    var rechromingGroup = document.getElementById('rechromingGroup');
+    var rechromingSpacer = document.getElementById('rechromingSpacer');
     var vinylGroup = document.getElementById('vinylGroup');
     var vinylValue = document.getElementById('vinylValue');
     var materialsSpacer = document.getElementById('materialsSpacer');
     var colorGroup = document.getElementById('colorGroup');
     var colorOptions = document.getElementById('colorOptions');
+    var hasRechroming = Boolean(parsed.rechroming);
     var hasVinyl = Boolean(parsed.vinyl);
     var hasColors = Boolean(parsed.colors.length);
 
@@ -492,6 +502,14 @@
       });
     }
 
+    if (rechromingGroup) {
+      rechromingGroup.style.display = hasRechroming ? '' : 'none';
+    }
+
+    if (rechromingSpacer) {
+      rechromingSpacer.style.display = hasRechroming && (hasVinyl || hasColors) ? '' : 'none';
+    }
+
     if (vinylGroup) {
       vinylGroup.style.display = hasVinyl ? '' : 'none';
     }
@@ -505,7 +523,7 @@
     }
 
     if (materialsSection) {
-      materialsSection.style.display = hasVinyl || hasColors ? '' : 'none';
+      materialsSection.style.display = hasRechroming || hasVinyl || hasColors ? '' : 'none';
     }
   }
 
