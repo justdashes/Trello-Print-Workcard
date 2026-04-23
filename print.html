@@ -291,6 +291,9 @@
 
           <div class="header-label" id="vehicleInfoLabel">VEHICLE:</div>
           <div id="vehicleInfo"></div>
+
+          <div class="header-label" id="quantityLabel">QUANTITY:</div>
+          <div id="quantity"></div>
         </div>
 
         <div class="section" id="materialsSection">
@@ -360,6 +363,7 @@
     var element = document.getElementById(id);
     var label = document.getElementById(id + 'Label');
     var hasValue = Boolean(value);
+    var headerFieldIds = ['jobNumber', 'customerName', 'vehicleInfo', 'quantity'];
 
     if (label) {
       label.style.display = hasValue ? '' : 'none';
@@ -370,11 +374,10 @@
       element.textContent = hasValue ? value : '';
     }
 
-    toggleSection('headerGrid', Boolean(
-      (document.getElementById('jobNumber') && document.getElementById('jobNumber').textContent) ||
-      (document.getElementById('customerName') && document.getElementById('customerName').textContent) ||
-      (document.getElementById('vehicleInfo') && document.getElementById('vehicleInfo').textContent)
-    ));
+    toggleSection('headerGrid', headerFieldIds.some(function (fieldId) {
+      var field = document.getElementById(fieldId);
+      return Boolean(field && field.textContent);
+    }));
   }
 
   function renderLabels(labels) {
@@ -419,31 +422,63 @@
     return cleanTitleValue(value).replace(/#\s+/g, '#').trim();
   }
 
+  function splitDetailParts(detailsText) {
+    return cleanTitleValue(detailsText)
+      .replace(/,\s*(?=(?:vinyl|color)\s*:|\b(?:re-?chrom(?:e|ing)|gauges?|gauge repair|gauge restoration)\b)/ig, '; ')
+      .split(';')
+      .map(cleanTitleValue)
+      .filter(Boolean);
+  }
+
   function parseCardTitle(title) {
     var parsed = {
       jobNumber: '',
       customerName: '',
       vehicle: '',
+      quantity: '',
       vinyl: '',
       colors: [],
       rechroming: false,
       gauges: false
     };
-    var match = (title || '').match(/^\s*([^:]+):\s*([^(]+?)(?:\s*\((.*)\))?\s*$/);
+    var titleText = cleanTitleValue(title);
+    var firstColonIndex = titleText.indexOf(':');
+    var rest;
+    var openParenIndex;
+    var closeParenIndex;
+    var detailsText = '';
+    var trailingText = '';
 
-    if (!match) {
+    if (firstColonIndex === -1) {
       return parsed;
     }
 
-    parsed.jobNumber = normalizeJobIdentifier(match[1]);
-    parsed.customerName = cleanTitleValue(match[2]);
+    parsed.jobNumber = normalizeJobIdentifier(titleText.slice(0, firstColonIndex));
+    rest = titleText.slice(firstColonIndex + 1).trim();
+    openParenIndex = rest.indexOf('(');
+    closeParenIndex = rest.lastIndexOf(')');
 
-    if (!match[3]) {
+    if (openParenIndex !== -1 && closeParenIndex > openParenIndex) {
+      parsed.customerName = cleanTitleValue(rest.slice(0, openParenIndex));
+      detailsText = rest.slice(openParenIndex + 1, closeParenIndex).trim();
+      trailingText = rest.slice(closeParenIndex + 1).trim();
+    } else {
+      parsed.customerName = cleanTitleValue(rest);
+    }
+
+    if (trailingText) {
+      var quantityMatch = trailingText.match(/\bQuantity:\s*(.+?)\s*$/i);
+
+      if (quantityMatch) {
+        parsed.quantity = cleanTitleValue(quantityMatch[1]);
+      }
+    }
+
+    if (!detailsText) {
       return parsed;
     }
 
-    match[3].split(';').forEach(function (part, index) {
-      var cleanedPart = cleanTitleValue(part);
+    splitDetailParts(detailsText).forEach(function (cleanedPart, index) {
       var fieldMatch = cleanedPart.match(/^([^:]+):\s*(.*)$/);
 
       if (/\bre-?chrom(?:e|ing)\b/i.test(cleanedPart)) {
@@ -810,6 +845,7 @@
         renderHeaderField('jobNumber', parsedTitle.jobNumber);
         renderHeaderField('customerName', parsedTitle.customerName);
         renderHeaderField('vehicleInfo', parsedTitle.vehicle);
+        renderHeaderField('quantity', parsedTitle.quantity);
         renderDescription(card.desc);
         renderMaterials(parsedTitle);
         renderCoverImages(card.cover);
