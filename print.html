@@ -158,9 +158,6 @@
 
 .description-box {
   padding: 6px 2px;
-  height: 4in;
-  min-height: 4in;
-  max-height: 4in;
   overflow: hidden;
   white-space: pre-line;
   font-size: 15px;
@@ -567,6 +564,47 @@
     return element.scrollHeight <= element.clientHeight;
   }
 
+  function measurePageOneDescriptionHeight(descriptionBox) {
+    var pageOne = document.querySelector('.page.page-1');
+    var pageRect;
+    var boxRect;
+    var pageStyle;
+    var usableBottom;
+
+    if (!pageOne || !descriptionBox) {
+      return 0;
+    }
+
+    pageRect = pageOne.getBoundingClientRect();
+    boxRect = descriptionBox.getBoundingClientRect();
+    pageStyle = window.getComputedStyle(pageOne);
+    usableBottom = pageRect.bottom - parseFloat(pageStyle.paddingBottom || 0);
+
+    return Math.max(0, Math.floor(usableBottom - boxRect.top));
+  }
+
+  function withMeasuredDescriptionHeight(descriptionBox, callback) {
+    var measuredHeight = measurePageOneDescriptionHeight(descriptionBox);
+    var previousHeight = descriptionBox.style.height;
+    var previousMinHeight = descriptionBox.style.minHeight;
+    var previousMaxHeight = descriptionBox.style.maxHeight;
+    var result;
+
+    if (measuredHeight > 0) {
+      descriptionBox.style.height = measuredHeight + 'px';
+      descriptionBox.style.minHeight = measuredHeight + 'px';
+      descriptionBox.style.maxHeight = measuredHeight + 'px';
+    }
+
+    result = callback();
+
+    descriptionBox.style.height = previousHeight;
+    descriptionBox.style.minHeight = previousMinHeight;
+    descriptionBox.style.maxHeight = previousMaxHeight;
+
+    return result;
+  }
+
   function findFittingText(element, text) {
     var low = 0;
     var high = text.length;
@@ -640,7 +678,9 @@
 
     toggleSection('descriptionSection', true);
 
-    var pageOneSplit = findFittingText(descriptionBox, remainingText);
+    var pageOneSplit = withMeasuredDescriptionHeight(descriptionBox, function () {
+      return findFittingText(descriptionBox, remainingText);
+    });
     descriptionBox.innerHTML = renderMarkdown(pageOneSplit.visible);
     remainingText = pageOneSplit.overflow;
 
