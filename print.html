@@ -285,26 +285,25 @@
           alt="Work card cover placeholder"
         />
 
-        <div class="header-grid section">
-          <div class="header-label">JOB #:</div>
-          <div id="jobNumber">From card title</div>
+        <div class="header-grid section" id="headerGrid">
+          <div class="header-label" id="jobNumberLabel">JOB #:</div>
+          <div id="jobNumber"></div>
 
-          <div class="header-label">CUSTOMER:</div>
-          <div id="customerName">From card title</div>
+          <div class="header-label" id="customerNameLabel">CUSTOMER:</div>
+          <div id="customerName"></div>
 
-          <div class="header-label">VEHICLE:</div>
-          <div id="vehicleInfo">From card title</div>
+          <div class="header-label" id="vehicleInfoLabel">VEHICLE:</div>
+          <div id="vehicleInfo"></div>
         </div>
 
-        <div class="section">
+        <div class="section" id="materialsSection">
           <div class="section-title">Materials:</div>
           <div class="materials-line">
-            VINYL:
-            <span id="vinylValue"><span class="checkbox first"></span>Coachman</span>
-            &nbsp;&nbsp;&nbsp;
-            COLOR:
-            <span id="colorOptions"><span class="checkbox"></span>White
-            <span class="checkbox"></span>Black</span>
+            <span id="vinylGroup">VINYL:
+            <span id="vinylValue"></span></span>
+            <span id="materialsSpacer">&nbsp;&nbsp;&nbsp;</span>
+            <span id="colorGroup">COLOR:
+            <span id="colorOptions"></span></span>
           </div>
         </div>
 
@@ -317,17 +316,12 @@
 
         <div class="section" id="labelsSection">
           <div class="section-title">Labels:</div>
-          <div class="labels-box" id="labelsBox">
-            <span class="label-pill">WILL CALL</span>
-            <span class="label-pill">PRE-PRODUCTION</span>
-          </div>
+          <div class="labels-box" id="labelsBox"></div>
         </div>
 
-        <div class="section">
+        <div class="section" id="descriptionSection">
           <div class="section-title">Description:</div>
-          <div class="description-box" id="descriptionBox">SHELF: Upstairs
-*Kick Panels Stay Black
-SHIPPING: Will Call</div>
+          <div class="description-box" id="descriptionBox"></div>
         </div>
       </div>
 
@@ -350,8 +344,36 @@ SHIPPING: Will Call</div>
   function setText(id, value) {
     var element = document.getElementById(id);
     if (element) {
-      element.textContent = value;
+      element.textContent = value || '';
     }
+  }
+
+  function toggleSection(id, visible) {
+    var element = document.getElementById(id);
+    if (element) {
+      element.style.display = visible ? '' : 'none';
+    }
+  }
+
+  function renderHeaderField(id, value) {
+    var element = document.getElementById(id);
+    var label = document.getElementById(id + 'Label');
+    var hasValue = Boolean(value);
+
+    if (label) {
+      label.style.display = hasValue ? '' : 'none';
+    }
+
+    if (element) {
+      element.style.display = hasValue ? '' : 'none';
+      element.textContent = hasValue ? value : '';
+    }
+
+    toggleSection('headerGrid', Boolean(
+      (document.getElementById('jobNumber') && document.getElementById('jobNumber').textContent) ||
+      (document.getElementById('customerName') && document.getElementById('customerName').textContent) ||
+      (document.getElementById('vehicleInfo') && document.getElementById('vehicleInfo').textContent)
+    ));
   }
 
   function renderLabels(labels) {
@@ -371,11 +393,21 @@ SHIPPING: Will Call</div>
     }
 
     labels.forEach(function (label) {
+      var labelText = label.name || label.color;
+
+      if (!labelText) {
+        return;
+      }
+
       var pill = document.createElement('span');
       pill.className = 'label-pill';
-      pill.textContent = label.name || label.color || 'Unnamed label';
+      pill.textContent = labelText;
       labelsBox.appendChild(pill);
     });
+
+    if (!labelsBox.children.length && labelsSection) {
+      labelsSection.style.display = 'none';
+    }
   }
 
   function cleanTitleValue(value) {
@@ -430,25 +462,53 @@ SHIPPING: Will Call</div>
   }
 
   function renderMaterials(parsed) {
+    var materialsSection = document.getElementById('materialsSection');
+    var vinylGroup = document.getElementById('vinylGroup');
     var vinylValue = document.getElementById('vinylValue');
+    var materialsSpacer = document.getElementById('materialsSpacer');
+    var colorGroup = document.getElementById('colorGroup');
     var colorOptions = document.getElementById('colorOptions');
+    var hasVinyl = Boolean(parsed.vinyl);
+    var hasColors = Boolean(parsed.colors.length);
 
-    if (vinylValue && parsed.vinyl) {
+    if (vinylValue) {
+      vinylValue.innerHTML = '';
+    }
+
+    if (colorOptions) {
+      colorOptions.innerHTML = '';
+    }
+
+    if (vinylValue && hasVinyl) {
       var vinylCheckbox = document.createElement('span');
       vinylCheckbox.className = 'checkbox first';
-      vinylValue.innerHTML = '';
       vinylValue.appendChild(vinylCheckbox);
       vinylValue.appendChild(document.createTextNode(parsed.vinyl));
     }
 
-    if (colorOptions && parsed.colors.length) {
-      colorOptions.innerHTML = '';
+    if (colorOptions && hasColors) {
       parsed.colors.forEach(function (color) {
         var checkbox = document.createElement('span');
         checkbox.className = 'checkbox';
         colorOptions.appendChild(checkbox);
         colorOptions.appendChild(document.createTextNode(color));
       });
+    }
+
+    if (vinylGroup) {
+      vinylGroup.style.display = hasVinyl ? '' : 'none';
+    }
+
+    if (colorGroup) {
+      colorGroup.style.display = hasColors ? '' : 'none';
+    }
+
+    if (materialsSpacer) {
+      materialsSpacer.style.display = hasVinyl && hasColors ? '' : 'none';
+    }
+
+    if (materialsSection) {
+      materialsSection.style.display = hasVinyl || hasColors ? '' : 'none';
     }
   }
 
@@ -560,10 +620,11 @@ SHIPPING: Will Call</div>
   }
 
   function renderDescription(descriptionText) {
+    var descriptionSection = document.getElementById('descriptionSection');
     var descriptionBox = document.getElementById('descriptionBox');
     var finalImagePage = document.querySelector('.full-image-page');
     var previewScale = document.getElementById('previewScale');
-    var remainingText = descriptionText || 'No description';
+    var remainingText = (descriptionText || '').trim();
 
     clearDescriptionOverflowPages();
 
@@ -571,8 +632,16 @@ SHIPPING: Will Call</div>
       return;
     }
 
+    if (!remainingText) {
+      descriptionBox.innerHTML = '';
+      toggleSection('descriptionSection', false);
+      return;
+    }
+
+    toggleSection('descriptionSection', true);
+
     var pageOneSplit = findFittingText(descriptionBox, remainingText);
-    descriptionBox.innerHTML = renderMarkdown(pageOneSplit.visible || remainingText);
+    descriptionBox.innerHTML = renderMarkdown(pageOneSplit.visible);
     remainingText = pageOneSplit.overflow;
 
     while (remainingText && finalImagePage) {
@@ -658,10 +727,10 @@ SHIPPING: Will Call</div>
       .then(function (card) {
         var parsedTitle = parseCardTitle(card.name);
 
-        setText('jobNumber', parsedTitle.jobNumber || 'From card title');
-        setText('customerName', parsedTitle.customerName || 'From card title');
-        setText('vehicleInfo', parsedTitle.vehicle || 'From card title');
-        renderDescription(card.desc || 'No description');
+        renderHeaderField('jobNumber', parsedTitle.jobNumber);
+        renderHeaderField('customerName', parsedTitle.customerName);
+        renderHeaderField('vehicleInfo', parsedTitle.vehicle);
+        renderDescription(card.desc);
         renderMaterials(parsedTitle);
         renderCoverImages(card.cover);
         renderLabels(card.labels || []);
