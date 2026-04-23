@@ -298,6 +298,8 @@
           <div class="materials-line">
             <span id="rechromingGroup">RE-CHROMING</span>
             <span id="rechromingSpacer">&nbsp;&nbsp;&nbsp;</span>
+            <span id="gaugesGroup">GAUGES</span>
+            <span id="gaugesSpacer">&nbsp;&nbsp;&nbsp;</span>
             <span id="vinylGroup">VINYL:
             <span id="vinylValue"></span></span>
             <span id="materialsSpacer">&nbsp;&nbsp;&nbsp;</span>
@@ -413,6 +415,10 @@
     return (value || '').replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/[\[\]_]/g, '').trim();
   }
 
+  function normalizeJobIdentifier(value) {
+    return cleanTitleValue(value).replace(/#\s+/g, '#').trim();
+  }
+
   function parseCardTitle(title) {
     var parsed = {
       jobNumber: '',
@@ -420,7 +426,8 @@
       vehicle: '',
       vinyl: '',
       colors: [],
-      rechroming: false
+      rechroming: false,
+      gauges: false
     };
     var match = (title || '').match(/^\s*([^:]+):\s*([^(]+?)(?:\s*\((.*)\))?\s*$/);
 
@@ -428,7 +435,7 @@
       return parsed;
     }
 
-    parsed.jobNumber = cleanTitleValue(match[1]);
+    parsed.jobNumber = normalizeJobIdentifier(match[1]);
     parsed.customerName = cleanTitleValue(match[2]);
 
     if (!match[3]) {
@@ -441,6 +448,10 @@
 
       if (/\bre-?chrom(?:e|ing)\b/i.test(cleanedPart)) {
         parsed.rechroming = true;
+      }
+
+      if (/\bgauges?\b|\bgauge (?:repair|restoration)\b/i.test(cleanedPart)) {
+        parsed.gauges = true;
       }
 
       if (!fieldMatch) {
@@ -469,12 +480,15 @@
     var materialsSection = document.getElementById('materialsSection');
     var rechromingGroup = document.getElementById('rechromingGroup');
     var rechromingSpacer = document.getElementById('rechromingSpacer');
+    var gaugesGroup = document.getElementById('gaugesGroup');
+    var gaugesSpacer = document.getElementById('gaugesSpacer');
     var vinylGroup = document.getElementById('vinylGroup');
     var vinylValue = document.getElementById('vinylValue');
     var materialsSpacer = document.getElementById('materialsSpacer');
     var colorGroup = document.getElementById('colorGroup');
     var colorOptions = document.getElementById('colorOptions');
     var hasRechroming = Boolean(parsed.rechroming);
+    var hasGauges = Boolean(parsed.gauges);
     var hasVinyl = Boolean(parsed.vinyl);
     var hasColors = Boolean(parsed.colors.length);
 
@@ -507,7 +521,15 @@
     }
 
     if (rechromingSpacer) {
-      rechromingSpacer.style.display = hasRechroming && (hasVinyl || hasColors) ? '' : 'none';
+      rechromingSpacer.style.display = hasRechroming && (hasGauges || hasVinyl || hasColors) ? '' : 'none';
+    }
+
+    if (gaugesGroup) {
+      gaugesGroup.style.display = hasGauges ? '' : 'none';
+    }
+
+    if (gaugesSpacer) {
+      gaugesSpacer.style.display = hasGauges && (hasVinyl || hasColors) ? '' : 'none';
     }
 
     if (vinylGroup) {
@@ -523,7 +545,7 @@
     }
 
     if (materialsSection) {
-      materialsSection.style.display = hasRechroming || hasVinyl || hasColors ? '' : 'none';
+      materialsSection.style.display = hasRechroming || hasGauges || hasVinyl || hasColors ? '' : 'none';
     }
   }
 
